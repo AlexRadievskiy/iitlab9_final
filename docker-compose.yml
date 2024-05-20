@@ -6,19 +6,22 @@ services:
       - discovery.type=single-node
     ports:
       - "9200:9200"
-
   fluentbit:
     image: fluent/fluent-bit:1.8
-    links:
-      - "elasticsearch"
     ports:
       - "24224:24224"
+      - "24224:24224/udp"
     volumes:
-      - ./fluentbit:/fluent-bit/etc
-
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - ./parsers.conf:/fluent-bit/etc/parsers.conf
+    depends_on:
+      - elasticsearch
   kibana:
     image: docker.elastic.co/kibana/kibana:7.9.3
-    links:
-      - "elasticsearch"
     ports:
       - "5601:5601"
+    depends_on:
+      - elasticsearch
+networks:
+  default:
+    driver: bridge
